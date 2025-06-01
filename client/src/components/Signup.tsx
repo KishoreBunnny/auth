@@ -5,22 +5,31 @@ import { ArrowRright, Githubicon, Googleicon } from "../assets/icons.tsx"
 
 
 type SignupOption = "email" | "username" | "password";
+type Oauthoptions = "google" | "github";
 
 type SignupProps = {
     className?: String,
     options?: SignupOption[],
+    oauthoptions?: Oauthoptions[],
+    title?: String,
+    subtitle?: String,
 }
 
 
 
 export default function Signup({
     className,
-    options = ["email", "password"],
+    options,
+    oauthoptions,
+    title = "Create An Account ",
+    subtitle = ""
 }
     : SignupProps) {
 
 
     const [formValues, setFormValues] = useState({ username: "", email: "", password: "" });
+    const [error, setError] = useState({ username: false, email: false, password: false });
+
 
     const uniqueOptions = Array.from(new Set(options));
 
@@ -35,79 +44,100 @@ export default function Signup({
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        const newErrors = {
+            username: options?.includes("username") ? formValues.username.trim() === "" : false,
+            email: options?.includes("email") ? formValues.email.trim() === "" : false,
+            password: options?.includes("password") ? formValues.password.trim() === "" : false,
+
+        }
+
+        setError(newErrors);
+
+        if (Object.values(newErrors).some(Boolean)) return;
+
+
+
+
         console.log("Form submitted", formValues);
         setFormValues({ username: "", email: "", password: "" })
     };
-    const text = "By creating account your accepting the conditions"
-
 
     return (
         <div className="flex justify-center items-center w-full h-full bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200  " >
             <div className={`${className} w-[100vw] md:w-[45vw] lg:w-[30vw]  min-h-[100vh] lg:min-h-[70vh] flex flex-col items-center gap-15  py-4 px-6   z-20  lg:rounded-xl  lg:border-1 dark:border-neutral-700/50 border-neutral-300/50  `} >
 
                 <div className="flex flex-col justify-center items-center " >
-                    <h1 className="text-2xl font-bold tracking-tight ">Create An Account</h1>
-                    <p className=" line-clamp-3 " >{text}</p>
+                    <h1 className="text-2xl font-bold tracking-tight ">{title}</h1>
+                    <p className=" line-clamp-3 " >{subtitle}</p>
                 </div>
+
 
                 <form onSubmit={handleSubmit} className=" w-full py-2 px-3 flex flex-col gap-5 ">
 
-                    {options.includes("username") && <div className="flex flex-col gap-1  " >
+                    {options?.includes("username") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="name" className="text-lg font-medium" >Username</label>
                         <input
                             type="text"
                             placeholder="Jone"
                             name="name"
                             value={formValues.username}
-                            onChange={e => setFormValues({ ...formValues, username: e.target.value })}
-                            required
-                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                            onChange={e => {
+                                setError({ ...error, username: false })
+                                setFormValues({ ...formValues, username: e.target.value })
+                            }}
+                            className={` ${error.username ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
                     </div>}
 
-                    {options.includes("email") && <div className="flex flex-col gap-1  " >
+                    {options?.includes("email") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="email" className="text-lg font-medium" >Email</label>
                         <input
-                         type="email"
-                          placeholder="ex@example.com"
-                           name="email"
-                           value={formValues.email}
-                            onChange={e => setFormValues({ ...formValues, email: e.target.value })}
-                            required
-                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                            type="email"
+                            placeholder="ex@example.com"
+                            name="email"
+                            value={formValues.email}
+                            onChange={e => {
+                                setError({ ...error, email: false })
+                                setFormValues({ ...formValues, email: e.target.value })
+                            }}
+                            className={` ${error.email ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
                     </div>}
 
 
-                    {options.includes("password") && <div className="flex flex-col gap-1  " >
+                    {options?.includes("password") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="password" className="text-lg font-medium" >Password</label>
                         <input
-                         type="password"
-                          placeholder="••••••••••"
-                           name="password"
-                           value={formValues.password}
-                            onChange={e => setFormValues({ ...formValues, password: e.target.value })}
-                            required
-                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                            type="password"
+                            placeholder="••••••••••"
+                            name="password"
+                            value={formValues.password}
+                            onChange={e => {
+                                setError({ ...error, password: false })
+                                setFormValues({ ...formValues, password: e.target.value })
+                            }}
+
+                            className={` ${error.password ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
                     </div>}
 
-
-
-
-                    <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Create account<ArrowRright /> </button>
-
+                    {options && <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Create account<ArrowRright /> </button>
+                    }
 
                 </form>
 
 
-
                 <div className="w-full flex flex-col justify-center items-center gap-1 " >
-                    <div className="flex w-full justify-center items-center gap-0.5 mb-3 " >
+                    {options && oauthoptions && <div className="flex w-full justify-center items-center gap-0.5 mb-3 " >
                         <span className="border-1 w-1/2 h-0 border-neutral-500/40 opacity-[.5] shadow-2xl  " ></span>
-                        <span className="text-neutral-300" >or</span>
+                        <span className="text-neutral-600 dark:text-neutral-300 " >or</span>
                         <span className="border-1 w-1/2 h-0 border-neutral-500/40 opacity-[.5] " ></span>
-                    </div>
+                    </div>}
+
                     <div className=" w-full  flex flex-col justify-center gap-2 ">
-                        <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Githubicon /> <p>Continue with Github</p> </button>
-                        <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Googleicon /> <p>Continue with Google</p> </button>
+
+                        {oauthoptions?.includes("github") && <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Githubicon /> <p>Continue with Github</p> </button>
+                        }
+                        {oauthoptions?.includes("google") && <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Googleicon /> <p>Continue with Google</p> </button>
+                        }
                     </div>
                     <div className="mt-1 text-md lg:text-sm font-semibold tracking-tighter " >
                         <span>Already have an account?</span><span className="text-blue-500 cursor-pointer hover:underline ml-0.5 ">Login</span>
