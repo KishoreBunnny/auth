@@ -7,7 +7,7 @@ function App() {
  
   return (
     <div className="w-[100vw] h-[100vh] bg-neutral-50 dark:bg-neutral-950 " >
-     <Signup  className={" "} options={["username","email"]} />
+      <Signup  className={" "} options={["username","password"]}    />
       <Signin className={"  "} options={["username","password"]} />
     </div>
   )

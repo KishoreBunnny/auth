@@ -1,32 +1,5 @@
+import { useState } from "react";
 import { ArrowRright, Githubicon, Googleicon } from "../assets/icons.tsx"
-
-
-
-const fieldConfigs: Record<SignupOption, {
-    type: string;
-    placeholder: string;
-    name: string;
-}> = {
-    email: {
-        type: "email",
-        placeholder: "ex@example.com",
-        name: "email",
-    },
-    username: {
-        type: "text",
-        placeholder: "Jone",
-        name: "username",
-    },
-    password: {
-        type: "password",
-        placeholder: "••••••••••",
-        name: "password",
-    },
-};
-
-
-
-
 
 
 
@@ -38,11 +11,16 @@ type SignupProps = {
     options?: SignupOption[],
 }
 
+
+
 export default function Signup({
     className,
     options = ["email", "password"],
 }
     : SignupProps) {
+
+
+    const [formValues, setFormValues] = useState({ username: "", email: "", password: "" });
 
     const uniqueOptions = Array.from(new Set(options));
 
@@ -55,15 +33,10 @@ export default function Signup({
     }
 
 
-
-
-    if (options) {
-        console.log(options)
-    }
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Form submitted");
+        console.log("Form submitted", formValues);
+        setFormValues({ username: "", email: "", password: "" })
     };
     const text = "By creating account your accepting the conditions"
 
@@ -79,41 +52,42 @@ export default function Signup({
 
                 <form onSubmit={handleSubmit} className=" w-full py-2 px-3 flex flex-col gap-5 ">
 
-
-                    {
-                        uniqueOptions?.map((option) => {
-                            const config = fieldConfigs[option];
-
-                            return (
-
-                                <div key={option} className="flex flex-col gap-1  " >
-                                    <label htmlFor={option} className="text-lg font-medium capitalize " >{option}</label>
-                                    <input
-                                        type={config.type}
-                                        placeholder={config.placeholder}
-                                        name={option}
-                                        className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
-                                </div>
-                            )
-                        })
-                    }
-
-
-                    {/* <div className="flex flex-col gap-1  " >
+                    {options.includes("username") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="name" className="text-lg font-medium" >Username</label>
-                        <input type="text" placeholder="Jone" name="name" className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
-                    </div>
+                        <input
+                            type="text"
+                            placeholder="Jone"
+                            name="name"
+                            value={formValues.username}
+                            onChange={e => setFormValues({ ...formValues, username: e.target.value })}
+                            required
+                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                    </div>}
 
-                    <div className="flex flex-col gap-1  " >
+                    {options.includes("email") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="email" className="text-lg font-medium" >Email</label>
-                        <input type="email" placeholder="ex@example.com" name="email" className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
-                    </div>
+                        <input
+                         type="email"
+                          placeholder="ex@example.com"
+                           name="email"
+                           value={formValues.email}
+                            onChange={e => setFormValues({ ...formValues, email: e.target.value })}
+                            required
+                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                    </div>}
 
 
-                    <div className="flex flex-col gap-1  " >
+                    {options.includes("password") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="password" className="text-lg font-medium" >Password</label>
-                        <input type="password" placeholder="••••••••••" name="password" className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
-                    </div> */}
+                        <input
+                         type="password"
+                          placeholder="••••••••••"
+                           name="password"
+                           value={formValues.password}
+                            onChange={e => setFormValues({ ...formValues, password: e.target.value })}
+                            required
+                            className=" autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  " />
+                    </div>}
 
 
 
