@@ -45,8 +45,10 @@ export default function Signup({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        console.log(formValues.username.trim())
+
         const newErrors = {
-            username: options?.includes("username") ? formValues.username.trim() === "" : false,
+            username: options?.includes("username") ? (formValues.username.trim() === "" || formValues.username.trim().length < 4) : false,
             email: options?.includes("email") ? formValues.email.trim() === "" : false,
             password: options?.includes("password") ? formValues.password.trim() === "" : false,
 
@@ -58,10 +60,30 @@ export default function Signup({
 
 
 
-
         console.log("Form submitted", formValues);
+        alert("registered successfully✅")
         setFormValues({ username: "", email: "", password: "" })
     };
+
+    const handleGithubLogin = () => {
+        const clientId = "Ov23liUR8TLzJH7XRv34";
+        const redirectUri = "http://localhost:5173/github";
+
+        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user`;
+
+        window.location.href = githubAuthUrl; // Redirect to GitHub
+    };
+
+
+    const handleGoogleLogin = () => {
+        const clientId = '1036842428199-rf9endbv2ve6v32g03vk2jhnsfg65aeh.apps.googleusercontent.com';
+        const redirectUri = 'http://localhost:5173/google';
+
+        const url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile`;
+
+        window.location.href = url; // Redirects to Google OAuth consent screen
+    };
+
 
     return (
         <div className="flex justify-center items-center w-full h-full bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200  " >
@@ -75,7 +97,8 @@ export default function Signup({
 
                 <form onSubmit={handleSubmit} className=" w-full py-2 px-3 flex flex-col gap-5 ">
 
-                    {options?.includes("username") && <div className="flex flex-col gap-1  " >
+                    {options?.includes("username") &&
+                     <div className="flex flex-col gap-1  " >
                         <label htmlFor="name" className="text-lg font-medium" >Username</label>
                         <input
                             type="text"
@@ -87,6 +110,7 @@ export default function Signup({
                                 setFormValues({ ...formValues, username: e.target.value })
                             }}
                             className={` ${error.username ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
+                       {(formValues.username.length<4 && error.username ) && <p className="text-sm font-light text-neutral-500 capitalize " >it should be latest 4 letters</p>   } 
                     </div>}
 
                     {options?.includes("email") && <div className="flex flex-col gap-1  " >
@@ -134,9 +158,9 @@ export default function Signup({
 
                     <div className=" w-full  flex flex-col justify-center gap-2 ">
 
-                        {oauthoptions?.includes("github") && <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Githubicon /> <p>Continue with Github</p> </button>
+                        {oauthoptions?.includes("github") && <button onClick={handleGithubLogin} className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Githubicon /> <p>Continue with Github</p> </button>
                         }
-                        {oauthoptions?.includes("google") && <button className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Googleicon /> <p>Continue with Google</p> </button>
+                        {oauthoptions?.includes("google") && <button onClick={handleGoogleLogin} className="w-full font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-3 rounded-lg " >  <Googleicon /> <p>Continue with Google</p> </button>
                         }
                     </div>
                     <div className="mt-1 text-md lg:text-sm font-semibold tracking-tighter " >
