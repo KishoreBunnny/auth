@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { ArrowRright, Githubicon, Googleicon } from "../assets/icons.tsx"
+import {  useState } from "react";
+import { ArrowRright, Eye, EyeClose, Githubicon, Googleicon } from "../assets/Icons.tsx"
+import axios from "axios";
 
 
 
@@ -22,13 +23,18 @@ export default function Signup({
     options,
     oauthoptions,
     title = "Create An Account ",
-    subtitle = ""
+    subtitle = "",
 }
     : SignupProps) {
 
 
+
+
     const [formValues, setFormValues] = useState({ username: "", email: "", password: "" });
     const [error, setError] = useState({ username: false, email: false, password: false });
+    const minSize = 4;
+    const [passwordType, setPasswordType] = useState<String>("password")
+
 
 
     const uniqueOptions = Array.from(new Set(options));
@@ -42,15 +48,14 @@ export default function Signup({
     }
 
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log(formValues.username.trim())
 
         const newErrors = {
-            username: options?.includes("username") ? (formValues.username.trim() === "" || formValues.username.trim().length < 4) : false,
+            username: options?.includes("username") ? (formValues.username.trim() === "" || formValues.username.trim().length < minSize) : false,
             email: options?.includes("email") ? formValues.email.trim() === "" : false,
-            password: options?.includes("password") ? formValues.password.trim() === "" : false,
+            password: options?.includes("password") ? (formValues.password.trim() === "" || formValues.password.trim().length < minSize) : false,
 
         }
 
@@ -59,10 +64,22 @@ export default function Signup({
         if (Object.values(newErrors).some(Boolean)) return;
 
 
+        try {
+           const response= await axios.post("http://localhost:8000/api/signup",{formValues,options})
+           if(response.data.message==="user registered successfully"){
+            console.log(response)
+            alert("done")
+           }
+            
+        } catch (error) {
+            console.log("error while register",error)
+            alert("failed")
+        }
 
-        console.log("Form submitted", formValues);
-        alert("registered successfully✅")
-        setFormValues({ username: "", email: "", password: "" })
+
+        // console.log("Form submitted", formValues);
+        // alert("registered successfully✅")
+        // setFormValues({ username: "", email: "", password: "" })
     };
 
     const handleGithubLogin = () => {
@@ -71,7 +88,7 @@ export default function Signup({
 
         const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user`;
 
-        window.location.href = githubAuthUrl; // Redirect to GitHub
+        window.location.href = githubAuthUrl; 
     };
 
 
@@ -86,19 +103,18 @@ export default function Signup({
 
 
     return (
-        <div className="flex justify-center items-center w-full h-full bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200  " >
-            <div className={`${className} w-[100vw] md:w-[45vw] lg:w-[30vw]  min-h-[100vh] lg:min-h-[70vh] flex flex-col items-center gap-15  py-4 px-6   z-20  lg:rounded-xl  lg:border-1 dark:border-neutral-700/50 border-neutral-300/50  `} >
+        <div className={`flex justify-center items-center w-full h-full bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200 `} >
+            <div className={`${className} w-[100vw] md:w-[45vw]   lg:w-[30vw]  min-h-[100vh] lg:min-h-[70vh] flex flex-col items-center gap-15  py-4 px-6   z-20  lg:rounded-xl  lg:border-1 dark:border-neutral-700/50 border-neutral-300/50  `} >
 
                 <div className="flex flex-col justify-center items-center " >
-                    <h1 className="text-2xl font-bold tracking-tight ">{title}</h1>
-                    <p className=" line-clamp-3 " >{subtitle}</p>
+                    <h1 className="text-2xl font-bold tracking-tight capitalize ">{title}</h1>
+                    <p className=" line-clamp-3 capitalize " >{subtitle}</p>
                 </div>
 
 
                 <form onSubmit={handleSubmit} className=" w-full py-2 px-3 flex flex-col gap-5 ">
 
-                    {options?.includes("username") &&
-                     <div className="flex flex-col gap-1  " >
+                    {options?.includes("username") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="name" className="text-lg font-medium" >Username</label>
                         <input
                             type="text"
@@ -110,7 +126,7 @@ export default function Signup({
                                 setFormValues({ ...formValues, username: e.target.value })
                             }}
                             className={` ${error.username ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
-                       {(formValues.username.length<4 && error.username ) && <p className="text-sm font-light text-neutral-500 capitalize " >it should be latest 4 letters</p>   } 
+                        {(formValues.username.length < minSize && error.username) && <p className="text-sm font-light text-red-400 capitalize ml-1 " >it should be latest {minSize} letters</p>}
                     </div>}
 
                     {options?.includes("email") && <div className="flex flex-col gap-1  " >
@@ -131,7 +147,7 @@ export default function Signup({
                     {options?.includes("password") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="password" className="text-lg font-medium" >Password</label>
                         <input
-                            type="password"
+                            type={`${passwordType}`}
                             placeholder="••••••••••"
                             name="password"
                             value={formValues.password}
@@ -141,6 +157,14 @@ export default function Signup({
                             }}
 
                             className={` ${error.password ? "outline-red-400" : ""} autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
+                            <button onClick={() => {
+                            if (passwordType === "password") setPasswordType("text")
+                            if (passwordType === "text") setPasswordType("password")
+
+                        }} type="reset" className="absolute self-end mt-11 mr-1 cursor-pointer " >
+                          { passwordType==="password"?  <Eye/> :<EyeClose/> }
+                        </button>
+                        {(formValues.password.length < minSize && error.password) && <p className="text-sm font-light text-red-400 capitalize ml-1 " >it should be latest {minSize} letters</p>}
                     </div>}
 
                     {options && <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Create account<ArrowRright /> </button>

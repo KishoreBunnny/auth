@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRright, Githubicon, Googleicon } from "../assets/icons.tsx"
+import { ArrowRright, Eye, EyeClose, Githubicon, Googleicon } from "../assets/Icons.tsx"
 
 
 
@@ -31,6 +31,8 @@ export default function Signin({
         email: false,
         password: false,
     });
+    const minSize = 4;
+    const [passwordType, setPasswordType] = useState<String>("password")
 
 
     const uniqueOptions = Array.from(new Set(options));
@@ -48,14 +50,16 @@ export default function Signin({
         e.preventDefault();
 
         const newErrors = {
-            email: options?.includes("email") ? formValues.email?.trim() === "" : false ,
-            username: options?.includes("username") ? formValues.username?.trim()==="":false ,
-            password: options?.includes("password") ? formValues.password?.trim()==="":false,
-        };
+            username: options?.includes("username") ? (formValues.username.trim() === "" || formValues.username.trim().length < minSize) : false,
+            email: options?.includes("email") ? formValues.email.trim() === "" : false,
+            password: options?.includes("password") ? (formValues.password.trim() === "" || formValues.password.trim().length < minSize) : false,
+
+        }
 
         setError(newErrors);
 
         if (Object.values(newErrors).some(Boolean)) return;
+
 
 
 
@@ -74,8 +78,8 @@ export default function Signin({
             <div className={`${className} w-[100vw] md:w-[45vw] lg:w-[30vw]  min-h-[100vh] lg:min-h-[70vh] flex flex-col items-center gap-15 py-4 px-6   z-20  lg:rounded-xl  lg:border-1 dark:border-neutral-700/50 border-neutral-300/50  `} >
 
                 <div className="flex flex-col justify-center items-center " >
-                    <h1 className="text-2xl font-bold tracking-tight ">{title}</h1>
-                    <p className=" line-clamp-3 " >{subtitle}</p>
+                    <h1 className="text-2xl font-bold tracking-tight capitalize ">{title}</h1>
+                    <p className=" line-clamp-3 capitalize " >{subtitle}</p>
                 </div>
 
 
@@ -88,10 +92,12 @@ export default function Signin({
                             placeholder="Jone"
                             name="name"
                             value={formValues.username}
-                            onChange={e =>{
-                                setError({ ...error, username: false }) 
-                            setFormValues({ ...formValues, username: e.target.value })}}
-                            className={` ${(error.username) ? "outline-red-400" : ""}  autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `}/>
+                            onChange={e => {
+                                setError({ ...error, username: false })
+                                setFormValues({ ...formValues, username: e.target.value })
+                            }}
+                            className={` ${(error.username) ? "outline-red-400" : ""}  autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900  `} />
+                        {(formValues.username.length < minSize && error.username) && <p className="text-sm font-light text-red-400 capitalize ml-1 " >it should be latest {minSize} letters</p>}
                     </div>}
 
                     {options?.includes("email") && <div className="flex flex-col gap-1  " >
@@ -112,7 +118,7 @@ export default function Signin({
                     {options?.includes("password") && <div className="flex flex-col gap-1  " >
                         <label htmlFor="password" className="text-lg font-medium" >Password</label>
                         <input
-                            type="password"
+                            type={`${passwordType}`}
                             placeholder="••••••••••"
                             name="password"
                             value={formValues.password}
@@ -122,6 +128,17 @@ export default function Signin({
                             }}
 
                             className={` ${(error.password) ? "outline-red-400" : ""}  autofill:bg-gray-700/30 bg-neutral-200  dark:bg-neutral-800 placeholder:text-md text-md p-2 rounded-md  outline-1 outline-neutral-400/50 focus:outline-neutral-400 shadow-md/20 shadow-neutral-900 `} />
+                        <button onClick={() => {
+                            if (passwordType === "password") setPasswordType("text")
+                            if (passwordType === "text") setPasswordType("password")
+                                
+                        }} type="reset" className="absolute self-end mt-11 mr-1 cursor-pointer " >
+                          { passwordType==="password"?  <Eye/> :<EyeClose/> }
+                        </button>
+                        <div className="w-full flex justify-between items-center " >
+                            {(formValues.password.length < minSize && error.password) && <p className="text-sm font-light text-red-400 capitalize ml-1 " >it should be latest {minSize} letters</p>}
+                            {true && <p className="text-sm hover:underline ml-auto text-blue-500 font-light cursor-pointer" >Forget Password</p>}
+                        </div>
                     </div>}
 
                     {options && <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Login<ArrowRright /> </button>
