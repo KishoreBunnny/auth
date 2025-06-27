@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ArrowRright, Eye, EyeClose, Githubicon, Googleicon } from "../assets/Icons.tsx"
+import axios from "axios";
+import { LinuxIcon } from "mmk-icons";
 
 
 
@@ -14,6 +16,10 @@ type SignupProps = {
     oauthoptions?: Oauthoptions[],
     title?: String,
     subtitle?: String,
+    sidedImage?: string,
+    afterSignUrl: string,
+    authSecret: string
+
 }
 
 export default function Signin({
@@ -21,18 +27,22 @@ export default function Signin({
     options,
     oauthoptions,
     title = "Welcome Back To Login",
-    subtitle = ""
+    subtitle = "",
+    sidedImage,
+    afterSignUrl,
+    authSecret = ""
 }
     : SignupProps) {
 
-    const [formValues, setFormValues] = useState({ username: "", email: "", password: "" });
+    const [formValues, setFormValues] = useState({ username: "", email: "", password: "", key: authSecret });
     const [error, setError] = useState({
         username: false,
         email: false,
         password: false,
     });
-    const minSize = 4;
+    const minSize = 1;
     const [passwordType, setPasswordType] = useState<String>("password")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
 
     const uniqueOptions = Array.from(new Set(options));
@@ -46,7 +56,7 @@ export default function Signin({
     }
 
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const newErrors = {
@@ -62,10 +72,31 @@ export default function Signin({
 
 
 
+        try {
+            setIsLoading(true)
+            // const response = await axios.post("http://localhost:8000/api/signin", formValues)
+            const response = await axios.post("http://localhost:3000/api/signin-app-user", formValues, {
+                withCredentials: true
+            })
 
-        console.log("Form submitted", formValues);
-        alert("login success✅")
-        setFormValues({ username: "", email: "", password: "" })
+            if (response.data.message === "logged in success with email" || response.data.message === "logged in success with username") {
+                console.log(response)
+                window.location.href = afterSignUrl;
+                alert("logged successfully✅")
+            }
+        } catch (error) {
+            console.log("error while logging", error)
+            alert(`failed ${error}`)
+        }
+        finally {
+            setIsLoading(false)
+            setFormValues((prev) => ({
+                username: "",
+                email: "",
+                password: "",
+                key: prev.key,
+            }));
+        }
 
     };
 
@@ -74,7 +105,13 @@ export default function Signin({
 
 
     return (
-        <div className="flex justify-center items-center w-full h-full bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200  " >
+        <div className="flex gap-8 justify-center items-center w-[100vw] h-[100vh] bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200  " >
+
+            {!!sidedImage && <div className="w-[60%] px-4 py-8 h-full hidden lg:flex " >
+                <img className="w-full h-full object-cover rounded-xl bg-neutral-800  " src={sidedImage} alt="image" />
+            </div>}
+
+
             <div className={`${className} w-[100vw] md:w-[45vw] lg:w-[30vw]  min-h-[100vh] lg:min-h-[70vh] flex flex-col items-center gap-15 py-4 px-6   z-20  lg:rounded-xl  lg:border-1 dark:border-neutral-700/50 border-neutral-300/50  `} >
 
                 <div className="flex flex-col justify-center items-center " >
@@ -131,9 +168,9 @@ export default function Signin({
                         <button onClick={() => {
                             if (passwordType === "password") setPasswordType("text")
                             if (passwordType === "text") setPasswordType("password")
-                                
+
                         }} type="reset" className="absolute self-end mt-11 mr-1 cursor-pointer " >
-                          { passwordType==="password"?  <Eye/> :<EyeClose/> }
+                            {passwordType === "password" ? <Eye /> : <EyeClose />}
                         </button>
                         <div className="w-full flex justify-between items-center " >
                             {(formValues.password.length < minSize && error.password) && <p className="text-sm font-light text-red-400 capitalize ml-1 " >it should be latest {minSize} letters</p>}
@@ -141,7 +178,7 @@ export default function Signin({
                         </div>
                     </div>}
 
-                    {options && <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Login<ArrowRright /> </button>
+                    {options && <button type="submit" className="w-full mt-3 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 bg-neutral-300 dark:bg-neutral-800 cursor-pointer  py-2 px-3 flex justify-center items-center gap-1 rounded-lg " >Login{!isLoading ? <LinuxIcon className=" animate-bounce " /> : <ArrowRright />} </button>
                     }
 
                 </form>
